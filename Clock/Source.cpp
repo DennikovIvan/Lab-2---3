@@ -17,6 +17,7 @@ float angle = 0.0;
 void createDots(sf::CircleShape *dot, sf::Vector2f windowCenter);
 void setCircle(sf::CircleShape *circle, int PointCount, int outTick, sf::Color color, int isFilled, float X, float Y);
 void setStrelki(sf::RectangleShape **strel, sf::Vector2f center);
+void moveStrelki(sf::RectangleShape **strel);
 
 void createDots(sf::CircleShape *dot, sf::Vector2f windowCenter)
 {
@@ -37,8 +38,8 @@ void createDots(sf::CircleShape *dot, sf::Vector2f windowCenter)
 void setCircle(sf::CircleShape *circle, int PointCount, int outTick, sf::Color color, int isFilled, float X, float Y)
 {
 	//настройка кругов
-	(*circle).setPointCount(PointCount);
-	(*circle).setOutlineThickness(outTick);
+	(*circle).setPointCount(size_t(PointCount));
+	(*circle).setOutlineThickness(float(outTick));
 	(*circle).setOutlineColor(color);
 	if (isFilled)
 		(*circle).setFillColor(color);
@@ -51,10 +52,25 @@ void setStrelki(sf::RectangleShape **strel, sf::Vector2f center)
 	//настройка стрелок
 	for (int i=0;i<3;i++)
 	{
-		(*strel[i]).setFillColor(sf::Color::Black);
-		(*strel[i]).setOrigin((*strel[i]).getGlobalBounds().width / 2, (*strel[i]).getGlobalBounds().height - 25);
+		if (i == 2)
+			(*strel[i]).setFillColor(sf::Color::Red);
+		else
+			(*strel[i]).setFillColor(sf::Color::Black);
+		(*strel[i]).setOrigin((*strel[i]).getGlobalBounds().width / 2, (*strel[i]).getGlobalBounds().height);
 		(*strel[i]).setPosition(center);
 	}
+}
+
+void moveStrelki(sf::RectangleShape **strel)
+{
+	//Движение стрелок
+	std::time_t currentTime = std::time(NULL);
+
+	struct tm * ptm = localtime(&currentTime);
+
+	(*strel[0]).setRotation(float(ptm->tm_hour * 30 + (ptm->tm_min / 2)));
+	(*strel[1]).setRotation(float(ptm->tm_min * 6 + (ptm->tm_sec / 12)));
+	(*strel[2]).setRotation(float(ptm->tm_sec * 6));
 }
 
 int main()
@@ -65,8 +81,8 @@ int main()
 
 	//создаем окно приложения
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML Analog Clock", sf::Style::Close, settings);
-	float windowX = window.getSize().x;
-	float windowY = window.getSize().y;
+	float windowX = float(window.getSize().x);
+	float windowY = float(window.getSize().y);
 
 	//Определяем центр окна
 	sf::Vector2f windowCenter = sf::Vector2f(windowX / 2.0f, windowY / 2.0f);
@@ -85,12 +101,12 @@ int main()
 	sf::CircleShape centerCircle(10);
 
 	//настраиваем центральный круг
-	setCircle(&centerCircle, 100, 1, sf::Color::Red,1, windowX / 2, windowY / 2);
+	setCircle(&centerCircle, 100, 1, sf::Color::Yellow,1, windowX / 2, windowY / 2);
 
 	//создаем стрелки
-	sf::RectangleShape hourHand(sf::Vector2f(5, 180));
-	sf::RectangleShape minuteHand(sf::Vector2f(3, 240));
-	sf::RectangleShape secondsHand(sf::Vector2f(2, 250));
+	sf::RectangleShape hourHand(sf::Vector2f(5, 150));
+	sf::RectangleShape minuteHand(sf::Vector2f(3, 200));
+	sf::RectangleShape secondsHand(sf::Vector2f(2, 220));
 
 	//массив стрелок
 	sf::RectangleShape *strelki[3];
@@ -119,14 +135,10 @@ int main()
 				window.close();
 		}
 
-		std::time_t currentTime = std::time(NULL);
+		//Поворачиваем стрелки
+		moveStrelki(strelki);
 
-		struct tm * ptm = localtime(&currentTime);
-
-		hourHand.setRotation(ptm->tm_hour * 30 + (ptm->tm_min / 2));
-		minuteHand.setRotation(ptm->tm_min * 6 + (ptm->tm_sec / 12));
-		secondsHand.setRotation(ptm->tm_sec * 6);
-		// Clear the window
+		//Очищение окна
 		window.clear(sf::Color::White);
 		window.draw(clockCircle);
 		for (int i = 0; i<60; i++)

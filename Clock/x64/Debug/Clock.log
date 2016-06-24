@@ -1,9 +1,3 @@
 ﻿  Source.cpp
-c:\workshpase\clock\clock\source.cpp(41): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(68): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(69): warning C4244: 'initializing': conversion from 'unsigned int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(79): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(126): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(127): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
-c:\workshpase\clock\clock\source.cpp(128): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\workshpase\clock\clock\source.cpp(95): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
   Clock.vcxproj -> C:\Workshpase\Clock\x64\Debug\Clock.exe
