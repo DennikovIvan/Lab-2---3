@@ -5,9 +5,10 @@
 ////////////////////////////////////////////////////////////
 #define _CRT_SECURE_NO_WARNINGS
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include <ctime>
 #include <cmath>
+#include <stdio.h>
+#include <stdlib.h>
 
 
 ////////////////////////////////////////////////////////////
@@ -16,47 +17,58 @@
 /// \return Application exit code
 ///
 ////////////////////////////////////////////////////////////
-int main()
+
+const int screenWidth = 800;
+const int screenHeight = 600;
+const float PI = 3.1415927f;
+const int clockCircleSize = 250;
+const int clockCircleThickness = 2;
+int x, y;
+float angle = 0.0;
+
+void createDots(sf::CircleShape * dot, sf::Vector2f windowCenter)
 {
-	// Define some variables and constants
-	const int screenWidth = 800;
-	const int screenHeight = 600;
-	const float PI = 3.1415927;
-	const int clockCircleSize = 250;
-	const int clockCircleThickness = 2;
-	int x, y;
-	float angle = 0.0;
-
-	// Set multisampling level
-	sf::ContextSettings settings;
-	settings.antialiasingLevel = 8;
-
-	// Create the window of the application
-	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML Analog Clock", sf::Style::Close, settings);
-
-	// Define windowCenter which gets the center of the window here, right after creating window
-	sf::Vector2f windowCenter = sf::Vector2f(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
-
-	// Create a list for clock's dots
-	sf::CircleShape dot[60];
-
-	// Create dots and place them to very right positions
 	for (int i = 0; i<60; i++)
 	{
-		x = (clockCircleSize - 10) * cos(angle);
-		y = (clockCircleSize - 10) * sin(angle);
-
+		x = float((clockCircleSize - 10) * cos(angle));
+		y = float((clockCircleSize - 10) * sin(angle));
 		if (i % 5 == 0)
 			dot[i] = sf::CircleShape(3);
 		else
 			dot[i] = sf::CircleShape(1);
 		dot[i].setFillColor(sf::Color::Black);
 		dot[i].setOrigin(dot[i].getGlobalBounds().width / 2, dot[i].getGlobalBounds().height / 2);
-		dot[i].setPosition(x + window.getSize().x / 2, y + window.getSize().y / 2);
-
+		dot[i].setPosition(x + windowCenter.x, y + windowCenter.y);
 		angle = angle + ((2 * PI) / 60);
 	}
+}
 
+void setStrelki(sf::RectangleShape * strel, sf::Vector2f center)
+{
+	for (int i=0;i<3;i++)
+	{
+		strel[i].setFillColor(sf::Color::Black);
+		strel[i].setOrigin(strel[i].getGlobalBounds().width / 2, strel[i].getGlobalBounds().height - 25);
+		strel[i].setPosition(center);
+	}
+}
+
+
+
+int main()
+{
+	// Set multisampling level
+	sf::ContextSettings settings;
+	settings.antialiasingLevel = 8;
+	// Create the window of the application
+	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML Analog Clock", sf::Style::Close, settings);
+	float windowX = window.getSize().x;
+	float windowY = window.getSize().y;
+	// Define windowCenter which gets the center of the window here, right after creating window
+	sf::Vector2f windowCenter = sf::Vector2f(windowX / 2.0f, windowY / 2.0f);
+	// Create a list for clock's dots
+	sf::CircleShape dot[60];
+	createDots(dot,windowCenter);
 	// Create outline of the clock
 	sf::CircleShape clockCircle(clockCircleSize);
 
@@ -64,7 +76,7 @@ int main()
 	clockCircle.setOutlineThickness(clockCircleThickness);
 	clockCircle.setOutlineColor(sf::Color::Black);
 	clockCircle.setOrigin(clockCircle.getGlobalBounds().width / 2, clockCircle.getGlobalBounds().height / 2);
-	clockCircle.setPosition(window.getSize().x / 2 + clockCircleThickness, window.getSize().y / 2 + clockCircleThickness);
+	clockCircle.setPosition(windowX / 2 + clockCircleThickness, windowY / 2 + clockCircleThickness);
 
 	// Crate another circle for center
 	sf::CircleShape centerCircle(10);
@@ -78,40 +90,13 @@ int main()
 	sf::RectangleShape hourHand(sf::Vector2f(5, 180));
 	sf::RectangleShape minuteHand(sf::Vector2f(3, 240));
 	sf::RectangleShape secondsHand(sf::Vector2f(2, 250));
-
-	hourHand.setFillColor(sf::Color::Black);
-	minuteHand.setFillColor(sf::Color::Black);
-	secondsHand.setFillColor(sf::Color::Red);
-
-	hourHand.setOrigin(hourHand.getGlobalBounds().width / 2, hourHand.getGlobalBounds().height - 25);
-	minuteHand.setOrigin(minuteHand.getGlobalBounds().width / 2, minuteHand.getGlobalBounds().height - 25);
-	secondsHand.setOrigin(secondsHand.getGlobalBounds().width / 2, secondsHand.getGlobalBounds().height - 25);
-
-	hourHand.setPosition(windowCenter);
-	minuteHand.setPosition(windowCenter);
-	secondsHand.setPosition(windowCenter);
-
-	// Create sound effect
-	sf::Music clockTick;
-	if (!clockTick.openFromFile("C:/Workshpase/Clock/clock-1.wav"))
-		return EXIT_FAILURE;
-	clockTick.setLoop(true);
-	clockTick.play();
-
-	// Use a part of SFML logo as clock brand
-	sf::Texture clockBrand;
-	if (!clockBrand.loadFromFile("C:/Workshpase/Clock/sfml-icon-small.png"))
-	{
-		return EXIT_FAILURE;
-	}
-
-	sf::Sprite clockBrandSprite;
-	clockBrandSprite.setTexture(clockBrand);
-	clockBrandSprite.setOrigin(clockBrandSprite.getTextureRect().left + clockBrandSprite.getTextureRect().width / 2.0f,
-		clockBrandSprite.getTextureRect().top + clockBrandSprite.getTextureRect().height / 2.0f);
-
-	clockBrandSprite.setPosition(window.getSize().x / 2, window.getSize().y - 100);
-
+	// массив стрелок
+	sf::RectangleShape strelki[3];
+	strelki[0] = hourHand;
+	strelki[1] = minuteHand;
+	strelki[2] = secondsHand;
+	//настройка стрелок
+	setStrelki(strelki, windowCenter);
 
 	// Create clock background
 	sf::Texture clockImage;
@@ -122,6 +107,8 @@ int main()
 
 	clockCircle.setTexture(&clockImage);
 	clockCircle.setTextureRect(sf::IntRect(40, 0, 500, 500));
+
+	
 
 	while (window.isOpen())
 	{
@@ -145,22 +132,15 @@ int main()
 
 		// Clear the window
 		window.clear(sf::Color::White);
-
-		// Draw all parts of clock
 		window.draw(clockCircle);
-
 		for (int i = 0; i<60; i++)
 		{
 			window.draw(dot[i]);
 		}
-
-		window.draw(clockBrandSprite);
 		window.draw(hourHand);
 		window.draw(minuteHand);
 		window.draw(secondsHand);
 		window.draw(centerCircle);
-
-		// Display things on screen
 		window.display();
 	}
 
