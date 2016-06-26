@@ -4,11 +4,12 @@
 #include <cmath>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 const int screenWidth = 800;
 const int screenHeight = 600;
 const float PI = 3.1415927f;
-const int clockCircleSize = 250;
+const float clockCircleSize = 250;
 const int clockCircleThickness = 2;
 int x, y;
 float angle = 0.0;
@@ -18,6 +19,8 @@ void createDots(sf::CircleShape *dot, sf::Vector2f windowCenter);
 void setCircle(sf::CircleShape *circle, int PointCount, int outTick, sf::Color color, int isFilled, float X, float Y);
 void setStrelki(sf::RectangleShape **strel, sf::Vector2f center);
 void moveStrelki(sf::RectangleShape **strel);
+void createNumbs(sf::RenderWindow *window);
+void drawing(sf::RenderWindow *window, sf::CircleShape *dot, sf::RectangleShape **strel, sf::CircleShape clockCircle, sf::CircleShape centerCircle);
 
 void createDots(sf::CircleShape *dot, sf::Vector2f windowCenter)
 {
@@ -73,6 +76,48 @@ void moveStrelki(sf::RectangleShape **strel)
 	(*strel[2]).setRotation(float(ptm->tm_sec * 6));
 }
 
+void createNumbs(sf::RenderWindow *window)
+{
+	float angl = - ((6 * PI) / 12);
+	sf::Font font;
+	if (!font.loadFromFile("C:/Workshpase/Clock/Ubuntu-R.ttf"))
+	{
+		printf("Error");
+	}
+	sf::Text numbs[12];
+	for (int i = 11; i>=0; i--)
+	{
+		x = int((clockCircleSize - 30) * cos(angl));
+		y = int((clockCircleSize - 30) * sin(angl));
+		sf::Text text;
+		numbs[i] = text;
+		numbs[i].setFont(font);
+		std::string q = std::to_string(i+1);
+		numbs[i].setString(q);
+		numbs[i].setCharacterSize(18);
+		numbs[i].setColor(sf::Color::Red);
+		numbs[i].setOrigin(numbs[i].getGlobalBounds().width / 2, numbs[i].getGlobalBounds().height / 2);
+		numbs[i].setPosition(x + float((*window).getSize().x) / 2, y + float((*window).getSize().y) / 2);
+		(*window).draw(numbs[i]);
+		angl = angl - ((2 * PI) / 12);
+	}
+}
+
+void drawing(sf::RenderWindow *window, sf::CircleShape *dot, sf::RectangleShape **strel, sf::CircleShape clockCircle, sf::CircleShape centerCircle)
+{
+	//Отрисовка
+	(*window).clear(sf::Color::White);
+	(*window).draw(clockCircle);
+	for (int i = 0; i<60; i++)
+		(*window).draw(dot[i]);
+	createNumbs(window);
+	(*window).draw((*strel[0]));
+	(*window).draw((*strel[1]));
+	(*window).draw((*strel[2]));
+	(*window).draw(centerCircle);
+	(*window).display();
+}
+
 int main()
 {
 	//устанавливаем уровень сглаживания
@@ -80,7 +125,7 @@ int main()
 	settings.antialiasingLevel = 8;
 
 	//создаем окно приложения
-	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "SFML Analog Clock", sf::Style::Close, settings);
+	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "My Analog Clock", sf::Style::Close, settings);
 	float windowX = float(window.getSize().x);
 	float windowY = float(window.getSize().y);
 
@@ -138,18 +183,8 @@ int main()
 		//Поворачиваем стрелки
 		moveStrelki(strelki);
 
-		//Очищение окна
-		window.clear(sf::Color::White);
-		window.draw(clockCircle);
-		for (int i = 0; i<60; i++)
-		{
-			window.draw(dot[i]);
-		}
-		window.draw(hourHand);
-		window.draw(minuteHand);
-		window.draw(secondsHand);
-		window.draw(centerCircle);
-		window.display();
+		//Отрисовываем
+		drawing(&window, dot, strelki, clockCircle, centerCircle);
 	}
 
 	return EXIT_SUCCESS;

@@ -1,3 +1,2 @@
 ﻿  Source.cpp
-c:\workshpase\clock\clock\source.cpp(95): warning C4244: 'argument': conversion from 'const int' to 'float', possible loss of data
   Clock.vcxproj -> C:\Workshpase\Clock\x64\Debug\Clock.exe
